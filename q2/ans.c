@@ -6,111 +6,54 @@
 #include <assert.h>
 
 
-const BMAX = 14;
-const RMAX = 12;
-const GMAX = 13;
+const int BMAX = 14;
+const int RMAX = 12;
+const int GMAX = 13;
 
-
-int split (const char *str, char c, char ***arr)
+char *trim(char *str)
 {
-    int count = 1;
-    int token_len = 1;
-    int i = 0;
-    char *p;
-    char *t;
+  char *end;
 
-    p = str;
-    while (*p != '\0')
-    {
-        if (*p == c)
-            count++;
-        p++;
-    }
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
 
-    *arr = (char**) malloc(sizeof(char*) * count);
-    if (*arr == NULL)
-        exit(1);
+  if(*str == 0)  // All spaces?
+    return str;
 
-    p = str;
-    while (*p != '\0')
-    {
-        if (*p == c)
-        {
-            (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
-            if ((*arr)[i] == NULL)
-                exit(1);
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
 
-            token_len = 0;
-            i++;
-        }
-        p++;
-        token_len++;
-    }
-    (*arr)[i] = (char*) malloc( sizeof(char) * token_len );
-    if ((*arr)[i] == NULL)
-        exit(1);
+  // Write new null terminator character
+  end[1] = '\0';
 
-    i = 0;
-    p = str;
-    t = ((*arr)[i]);
-    while (*p != '\0')
-    {
-        if (*p != c && *p != '\0')
-        {
-            *t = *p;
-            t++;
-        }
-        else
-        {
-            *t = '\0';
-            i++;
-            t = ((*arr)[i]);
-        }
-        p++;
-    }
-
-    return count;
+  return str;
 }
 
 
-
 int validate_line (char* game){
-	char **rounds;
-	int num_games = split(game, ';', &rounds);
-	printf("num_games: %d\n", num_games);
-	int i;
-	for (i = 0; i < num_games; i++){
-		int r = 0, g = 0, b = 0;
-		char **cube_counts;
-		int num_colours = split(rounds[i], ',' , &cube_counts);
-		printf("num_colours for game %d: %d\n", i + 1, num_colours);
-		int x;
-		for (x = 0; x < num_colours; x++){
-			printf("cube counts for cube colour number %d is: %s\n", x, cube_counts[x]);
-			char **cube_info;
-			int num_strings = split(cube_counts[x], ' ', &cube_info);
-			// This is the number of cubes for this type of cube in this game.
-			int cubes = atoi(cube_info[0]);
-			printf("cube count: %s, colour: %s\n", cube_info[0], cube_info[1]);
-			if(strcmp("red", cube_info[1]) == 0){
-				if (cubes > RMAX){
-					return 0;
-				}
-			}
-			if(strcmp("green", cube_info[1]) == 0){
-				if(cubes > GMAX){
-					return 0;
-				}
-			}
-			if(strcmp("blue", cube_info[1]) == 0){
-				if(cubes > BMAX){
-					return 0;
-				}
-			}
-		}
+	char * cube_split = strtok(game, ",");
+	// 3 colours max
+	char ** cube_entries = malloc(3);
+	int i = 0;
+
+	//Build cube entries
+	while(cube_split != NULL){
+		cube_entries[i] = trim(cube_split);
+		printf("%s\n", cube_entries[i]);
+		i++;
+		cube_split = strtok(NULL, ",");
 	}
 
-	free(rounds);
+	int x;
+	for(x = 0; x <= i; x++){
+		char * cube_info = strtok(cube_entries[x], " ");
+		int num_cubes = atoi(cube_info);
+		char * cube_colour = strtok(NULL, " ");
+
+		printf("num_cubes: %d\ncube_colour: %s\n\n", num_cubes, cube_colour);
+	}
+
 	return 1;
 }
 
@@ -118,8 +61,20 @@ int validate_line (char* game){
 
 int main (int argc, char *argv[]){
 
-	int valid = validate_line("3 blue, 2 green, 6 red; 17 green, 4 red, 8 blue; 2 red, 1 green, 10 blue; 1 blue, 5 green");
-	printf("valid?: %s", valid);
+	char str[100] = "Game 1: 3 blue, 2 green, 6 red; 17 green, 4 red, 8 blue; 2 red, 1 green, 10 blue; 1 blue, 5 green";
+	char * game_id = strtok(str, ":");
+	char * split = strtok(NULL, ";");
+	char * game_id_split = strtok(trim(game_id), " ");
+
+	game_id_split = strtok(NULL, " ");
+	int parsed_id = atoi(game_id_split);
+	printf("Game id parsed: %d\n\n", parsed_id);
+	while(split != NULL){
+		char * trimmed = trim(split);
+		printf("Game found: %s\n", trimmed);
+		validate_line(trimmed);
+		split = strtok(NULL, ";");
+	}
 
 	exit(EXIT_SUCCESS);
 }
