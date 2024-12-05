@@ -18,13 +18,30 @@ func Solve() {
 
 	for _, page := range pages {
 		if pageValid(page, orderMap) {
-			fmt.Println("Found valid page:", page)
-			middleElement := page[len(page)/2]
-			total += middleElement
+			continue
 		}
+		total += pageCanBeFixed(page, orderMap)
 	}
 
 	fmt.Println("Total:", total)
+}
+
+func pageCanBeFixed (page []int, orderMap map[int][]int) int {
+	for i, num := range page {
+		var successors []int = orderMap[num]
+		for backtrack := i; backtrack >= 0; backtrack-- {
+			backtrackNum := page[backtrack]
+			// If a successor number is found to be before our number, swap them around
+			if slices.Contains(successors, backtrackNum) {
+				temp := page[backtrack]
+				page[backtrack] = page[i]
+				page[i] = temp
+				i = backtrack
+			}
+		}
+	}
+	mid := page[len(page)/2]
+	return mid
 }
 
 func pageValid (page []int, orderMap map[int][]int) bool {
