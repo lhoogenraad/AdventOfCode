@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -12,10 +13,33 @@ var DATA_FILE_PATH string = "day5/data.txt"
 
 func Solve() {
 	total := 0
-	orders, _ := readData()
+	orders, pages := readData()
 	orderMap := buildOrderMap(orders)
-	fmt.Println(orderMap)
+
+	for _, page := range pages {
+		if pageValid(page, orderMap) {
+			fmt.Println("Found valid page:", page)
+			middleElement := page[len(page)/2]
+			total += middleElement
+		}
+	}
+
 	fmt.Println("Total:", total)
+}
+
+func pageValid (page []int, orderMap map[int][]int) bool {
+	for i, num := range page {
+		var successors []int = orderMap[num]
+		for backtrack := i; backtrack >= 0; backtrack-- {
+			backtrackNum := page[backtrack]
+			// If a successor number is found to be before our number
+			if slices.Contains(successors, backtrackNum) {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func buildOrderMap(orders [][]int) map[int][]int {
