@@ -14,15 +14,14 @@ func Solve() {
 
 	for i := range lines {
 		line := lines[i]
-		if validLine(line) {
+		if isSafeWithDampener(line) {
 			total++
 		}
 	}
 	fmt.Printf("Total:\t%v\n", total)
 }
 
-func validLine (line string) bool {
-	lineItems := strings.Split(line, " ")
+func validLine (lineItems []string) bool {
 	var asc bool = determineAsc(lineItems)
 	prev, _ := strconv.Atoi(lineItems[0])
 	fmt.Println(lineItems, asc)
@@ -58,6 +57,28 @@ func validLine (line string) bool {
 	}
 
 	return true
+}
+
+
+// Helper function to apply the Problem Dampener rule
+func isSafeWithDampener(l string) bool {
+	line := strings.Split(l, " ")
+	// If the report is already safe, return true
+	if validLine(line) {
+		return true
+	}
+
+	// Try removing each level one by one
+	for i := 0; i < len(line); i++ {
+		modified := append([]string{}, line[:i]...) // Copy elements before the removed level
+		modified = append(modified, line[i+1:]...) // Append elements after the removed level
+
+		if validLine(modified) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func determineAsc (lineItems []string) bool {
