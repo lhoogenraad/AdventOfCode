@@ -24,14 +24,12 @@ func Solve() {
 func validLine (lineItems []string) bool {
 	var asc bool = determineAsc(lineItems)
 	prev, _ := strconv.Atoi(lineItems[0])
-	fmt.Println(lineItems, asc)
 
 	for i := 1; i < len(lineItems); i++ {
 		numErrors := 0
 		curr, _ := strconv.Atoi(lineItems[i])
 		// If diff is positive, we are descending
 		diff := curr - prev
-		fmt.Println(prev, curr, diff)
 		if diff > 3 || diff < -3 || diff == 0{
 			return false
 		}
@@ -67,18 +65,28 @@ func isSafeWithDampener(l string) bool {
 	if validLine(line) {
 		return true
 	}
-
+	fmt.Println("Og line:", line)
 	// Try removing each level one by one
 	for i := 0; i < len(line); i++ {
-		modified := append([]string{}, line[:i]...) // Copy elements before the removed level
-		modified = append(modified, line[i+1:]...) // Append elements after the removed level
-
+		modified := line
+		modified = remove(modified, i)
+		fmt.Println("Modded at index:", i, "\tArray:", modified)
 		if validLine(modified) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func remove(s []string, i int) []string {
+	var list []string
+	for x, val := range s {
+		if x != i {
+			list = append(list, val)
+		}
+	}
+	return list
 }
 
 func determineAsc (lineItems []string) bool {
