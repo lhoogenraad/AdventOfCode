@@ -24,9 +24,10 @@ func Solve() {
 func validLine (lineItems []string) bool {
 	var asc bool = determineAsc(lineItems)
 	prev, _ := strconv.Atoi(lineItems[0])
-
+	if lineItems[0] == "96" {
+		fmt.Println(lineItems, "isAsc:", asc)
+	}
 	for i := 1; i < len(lineItems); i++ {
-		numErrors := 0
 		curr, _ := strconv.Atoi(lineItems[i])
 		// If diff is positive, we are descending
 		diff := curr - prev
@@ -36,19 +37,14 @@ func validLine (lineItems []string) bool {
 
 		if asc {
 			if diff < 0 {
-				if numErrors >= 1 {
 					return false
-				} else {
-					numErrors++
-				}
 			}
 		} else {
+			if lineItems[0] == "96" {
+				fmt.Println(curr, prev, diff)
+			}
 			if diff > 0 {
-				if numErrors >= 1 {
 					return false
-				} else {
-					numErrors++
-				}
 			}
 		}
 		prev = curr
@@ -71,7 +67,7 @@ func isSafeWithDampener(l string) bool {
 		modified := line
 		modified = remove(modified, i)
 		if validLine(modified) {
-		fmt.Println("Modded at index found to be valid:", i, "\tArray:", modified)
+			fmt.Println("Modded at index found to be valid:", i, "\tArray:", modified)
 			return true
 		}
 	}
