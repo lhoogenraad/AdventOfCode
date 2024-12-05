@@ -70,8 +70,8 @@ func isSafeWithDampener(l string) bool {
 	for i := 0; i < len(line); i++ {
 		modified := line
 		modified = remove(modified, i)
-		fmt.Println("Modded at index:", i, "\tArray:", modified)
 		if validLine(modified) {
+		fmt.Println("Modded at index found to be valid:", i, "\tArray:", modified)
 			return true
 		}
 	}
