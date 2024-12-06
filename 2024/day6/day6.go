@@ -33,36 +33,49 @@ func guardRunaround(x, y int, grid [][]string) int {
 	// Declare grid height and width
 	height, width := len(grid), len(grid[0])
 
-	// Map y positions to list of x positions (I am lazy)
-	visitedPositions := make( map[int][]int)
+	// Map y positions to list of x positions
+	visitedPositions := make(map[int][]int)
 
-	for x > 0 && y > 0 && x < width && y < height {
-		nextY, nextX := (y + direction[0]), (x + direction[1])
-		if grid[nextY][nextX] == "#" {
-			fmt.Println("Found turn point", nextY, nextX)
-			newDirIndex := (dirIndex + 1) % len(directions)
-			dirIndex = newDirIndex
-			direction = directions[newDirIndex]
+	// Mark the starting position as visited
+	visitedPositions[y] = append(visitedPositions[y], x)
+	uniquePositionsVisited++
 
+	for x >= 0 && y >= 0 && x < width && y < height {
+		// fmt.Println("uniquePositionsVisited:", uniquePositionsVisited, "y:", y, "x:", x,
+		// "direction vertical:", direction[0], "direction horiztonal:", direction[1])
+		nextY, nextX := y+direction[0], x+direction[1]
+
+		// Turn if there's an obstacle
+		if nextY < 0 || nextY >= height || nextX < 0 || nextX >= width{
+			dirIndex = (dirIndex + 1) % len(directions)
+			direction = directions[dirIndex]
+		} else if grid[nextY][nextX] == "#" {
+			fmt.Println("Turning at (x, y):", x, y)
+			dirIndex = (dirIndex + 1) % len(directions)
+			direction = directions[dirIndex]
+			continue
 		}
-		if !visited(y, x, visitedPositions) {
-			uniquePositionsVisited += 1
+
+		// Mark new position if not visited
+		if !visited(nextY, nextX, visitedPositions) {
+			visitedPositions[nextY] = append(visitedPositions[nextY], nextX)
+			uniquePositionsVisited++
 		}
-		visitedPositions[y] = append(visitedPositions[y], x)
-		y += direction[0]
-		x += direction[1]
+
+		// Move to the next position
+		y, x = nextY, nextX
 	}
+
 	fmt.Println("Exited at y:", y, ", x:", x)
 	return uniquePositionsVisited
 }
 
 
 func visited (y, x int, visited map[int][]int) bool {
-	fmt.Println("Checking y:", y, "x:", x, visited[y], "contains x:", slices.Contains(visited[y], x))
-	if !slices.Contains(visited[y], x) {
+	if _, exists := visited[y]; !exists {
 		return false
 	}
-	return true
+	return slices.Contains(visited[y], x)
 }
 
 
