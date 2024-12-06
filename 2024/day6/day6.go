@@ -35,50 +35,86 @@ type Position struct {
 }
 
 func Solve() {
-	// Input map
-	grid := readData()
+    
+    originalGrid := readData()
 
-	// Directions: up, right, down, left
-	directions := []Position{{-1, 0}, {0, 1}, {1, 0}, {0, -1}}
-	directionIndex := 0 // Start facing up
+    
+    directions := []Position{{-1, 0}, {0, 1}, {1, 0}, {0, -1}}
 
-	// Find the guard's starting position
-	var guard Position
-	for i := range grid {
-		for j := range grid[i] {
-			if grid[i][j] == '^' {
-				guard = Position{i, j}
-				grid[i][j] = '.' // Replace initial guard position with empty space
-			}
-		}
-	}
+    
+    var guardStart Position
+    for i := range originalGrid {
+        for j := range originalGrid[i] {
+            if originalGrid[i][j] == '^' {
+                guardStart = Position{i, j}
+                originalGrid[i][j] = '.' 
+            }
+        }
+    }
 
-	visited := make(map[Position]bool)
-	visited[guard] = true
+    
+    validObstructionCount := 0
 
-	for {
-		fmt.Println("(x, y):", guard.x, guard.y)
-		// Compute the next position based on current direction
-		next := Position{guard.x + directions[directionIndex].x, guard.y + directions[directionIndex].y}
+    for x := 0; x < len(originalGrid); x++ {
+        for y := 0; y < len(originalGrid[x]); y++ {
+			fmt.Println(x, y)
+            
+            if originalGrid[x][y] != '.' {
+                continue
+            }
 
-		// Check if the next position is out of bounds
-		if next.x < 0 || next.x >= len(grid) || next.y < 0 || next.y >= len(grid[0]) {
-			fmt.Println("Guard has exited the grid.")
-			break
-		}
+            
+            grid := copyGrid(originalGrid)
+            grid[x][y] = '#'
 
-		// Check if the next position is obstructed
-		if grid[next.x][next.y] == '#' {
-			// Turn right (90 degrees clockwise)
-			directionIndex = (directionIndex + 1) % 4
-		} else {
-			// Move forward
-			guard = next
-			visited[guard] = true
-		}
-	}
+            
+            if causesInfiniteLoop(grid, guardStart, directions) {
+                validObstructionCount++
+            }
+        }
+    }
 
-	// Output the number of distinct positions visited
-	fmt.Println("Distinct positions visited:", len(visited))
+    
+    fmt.Println("Valid obstruction positions:", validObstructionCount)
 }
 
+func causesInfiniteLoop(grid [][]rune, start Position, directions []Position) bool {
+    visited := make(map[Position]int) 
+    directionIndex := 0               
+    guard := start
+
+    for {
+        
+        next := Position{guard.x + directions[directionIndex].x, guard.y + directions[directionIndex].y}
+
+        
+        if next.x < 0 || next.x >= len(grid) || next.y < 0 || next.y >= len(grid[0]) {
+            return false 
+        }
+
+        
+        if grid[next.x][next.y] == '#' {
+            
+            directionIndex = (directionIndex + 1) % 4
+        } else {
+            
+            guard = next
+
+            
+            state := Position{guard.x*10 + directionIndex, guard.y*10 + directionIndex}
+            visited[state]++
+            if visited[state] > 1 {
+                return true 
+            }
+        }
+    }
+}
+
+func copyGrid(grid [][]rune) [][]rune {
+    copy := make([][]rune, len(grid))
+    for i := range grid {
+        copy[i] = make([]rune, len(grid[i]))
+        copy[i] = append([]rune{}, grid[i]...)
+    }
+    return copy
+}
