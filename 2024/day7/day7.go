@@ -9,16 +9,40 @@ import (
 )
 var DATA_FILE_PATH string = "day7/input.txt"
 
-// Search tree node
-type node struct {
-	val int
-	add *node
-	multiply *node
-}
 
 func Solve(){
 	dict := readData()
-	fmt.Println(dict)
+	total := 0
+	i := 0
+	for target, nums := range dict {
+		fmt.Println("i:", i)
+		i++
+		if getCalibrationResult(nums[0], nums, 1, target) {
+			total += target
+		}
+	}
+	fmt.Println("Total calibration rizzult:", total)
+}
+
+
+func getCalibrationResult(current int, nums []int, i int, target int) bool {
+    if i == len(nums) {
+        return current == target
+    }
+
+    addition := current + nums[i]
+    multiplication := current * nums[i]
+    concatenation := concatenate(current, nums[i])
+
+    return getCalibrationResult(addition, nums, i+1, target) ||
+           getCalibrationResult(multiplication, nums, i+1, target) ||
+           getCalibrationResult(concatenation, nums, i+1, target)
+}
+
+// Thank you SO
+func concatenate(a, b int) int {
+	num, _ := strconv.Atoi(fmt.Sprintf("%d%d", a, b))
+	return num
 }
 
 
