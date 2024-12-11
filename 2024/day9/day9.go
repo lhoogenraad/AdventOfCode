@@ -4,17 +4,20 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 var DATA_FILE_PATH string = "day9/input.txt"
 
 
 func Solve() {
-	readData()
+	rawArray := readData()
+	fmt.Println(rawArray)
 }
 
 
-func readData() {
+func readData() []int {
+	var items []int
 	readFile, err := os.Open(DATA_FILE_PATH)
 	defer readFile.Close()
 	if err != nil {panic(err)}
@@ -23,8 +26,9 @@ func readData() {
 	scanner.Split(bufio.ScanRunes)
 
 	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Println("New line", line)
+		char := scanner.Text()
+		num,_ := strconv.Atoi(char)
+		items = append(items, num)
 	}
-	return 
+	return items
 }
